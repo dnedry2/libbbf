@@ -5,7 +5,28 @@
 
 ![alt text](https://img.shields.io/badge/License-MIT-green.svg)
 
-Bound Book Format (.bbf) is a high-performance, archival-grade binary container designed specifically for digital comic books and manga. Unlike CBR/CBZ, BBF is built for DirectSotrage/mmap, easy integrity checks, and mixed-codec containerization.
+Bound Book Format (.bbf) is a high-performance binary container designed specifically for digital comic books and manga. Unlike CBR/CBZ, BBF is built for DirectSotrage/mmap, easy integrity checks, and mixed-codec containerization.
+
+---
+
+## Getting Started
+
+### Prerequisites
+- C++17 compliant compiler (GCC/Clang/MSVC)
+- [xxHash](https://github.com/Cyan4973/xxHash) library
+
+### Compilation
+Linux
+```bash
+g++ -std=c++17 bbfenc.cpp libbbf.cpp xxhash.c -o bbfmux
+```
+
+Windows
+```bash
+g++ -std=c++17 bbfmux.cpp libbbf.cpp xxhash.c -o bbfmux -municode
+```
+
+---
 
 ## Technical Details
 BBF is designed as a Footer-indexed binary format. This allows for rapid append-only creation and immediate random access to any page without scanning the entire file.
@@ -81,61 +102,59 @@ The `bbfmux` utility provides a powerful interface for managing Bound Book files
 ## Usage Examples
 
 ### Create a new BBF
-You can mix individual images and folders. `bbfmux` will sort inputs alphabetically, deduplicate identical assets, and align data to 4KB boundaries. 
-
-NOTE: It's not quite implemented yet in the CLI, but the `AssetTable` enables you to specify custom reading orders.
+You can mix individual images and folders. `bbfmux` sorts inputs alphabetically, deduplicates identical assets, and aligns data to 4096-byte boundaries.
 
 ```bash
+# Basic creation with metadata
 bbfmux cover.png ./chapter1/ endcard.png \
-  --section="Cover":1 \
-  --section="Chapter 1":2 \
-  --section="Credits":24 \
   --meta=Title:"Akira" \
   --meta=Author:"Katsuhiro Otomo" \
+  --meta=Tags:"[Action, Sci-Fi, Cyberpunk]" \
   akira.bbf
 ```
 
+### Hierarchical Sections (Volumes & Chapters)
+BBF supports nesting sections. By defining a Parent relationship, you can group chapters into volumes. This allows readers to display a nested Table of Contents and enables bulk-extraction of entire volumes.
+
+**Syntax:** `--section="Name":Page[:ParentName]`
+
+```bash
+# Create a book with nested chapters
+bbfmux ./manga_folder/ \
+  --section="Volume 1":1 \
+  --section="Chapter 1":1:"Volume 1" \
+  --section="Chapter 2":20:"Volume 1" \
+  --section="Volume 2":180 \
+  --section="Chapter 3":180:"Volume 2" \
+  manga.bbf
+```
+
 ### Verify Integrity
-Scan for bit-rot or data corruption. Will tell you which assets are corrupted.
+Scan the archive for bit-rot or data corruption. BBF uses **[XXH3_64](https://github.com/Cyan4973/xxHash)** hashes to verify every individual image payload.
 ```bash
 bbfmux input.bbf --verify
 ```
 
 ### Extract Data
-Extract a specific section or the entire book.
+Extract the entire book, a specific volume, or a single chapter. When extracting a parent section (like a Volume), `bbfmux` automatically includes all child chapters.
+
+**Extract a specific section:**
 ```bash
-bbfmux input.bbf --extract --section="Chapter 1" --outdir="./chapter1"
+bbfmux input.bbf --extract --section="Volume 1" --outdir="./Volume1"
 ```
 
-Extract the entire book
+**Extract the entire book:**
 ```bash
 bbfmux input.bbf --extract --outdir="./unpacked_book"
 ```
 
-### View Metadata
-View the metadata for the .bbf file.
+### View Metadata & Structure
+View the version, page count, deduplication stats, hierarchical sections, and all embedded metadata.
 ```bash
 bbfmux input.bbf --info
 ```
 
 ---
-
-## Getting Started
-
-### Prerequisites
-- C++17 compliant compiler (GCC/Clang/MSVC)
-- [xxHash](https://github.com/Cyan4973/xxHash) library
-
-### Compilation
-Linux
-```bash
-g++ -std=c++17 bbfenc.cpp libbbf.cpp xxhash.c -o bbfmux
-```
-
-Windows
-```bash
-g++ -std=c++17 bbfmux.cpp libbbf.cpp xxhash.c -o bbfmux -municode
-```
 
 ## License
 Distributed under the MIT License. See `LICENSE` for more information.
