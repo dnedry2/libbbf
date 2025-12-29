@@ -100,8 +100,14 @@ bbfmux input.bbf --info
 - [xxHash](https://github.com/Cyan4973/xxHash) library
 
 ### Compilation
+Linux
 ```bash
 g++ -std=c++17 bbfmux.cpp libbbf.cpp xxhash.c -o bbfmux
+```
+
+Windows
+```bash
+g++ -std=c++17 bbfmux.cpp libbbf.cpp xxhash.c -o bbfmux -municode
 ```
 
 ## License

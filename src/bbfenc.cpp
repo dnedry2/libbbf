@@ -7,6 +7,21 @@
 #include <algorithm>
 #include <iomanip>
 
+// I HATE WINDOWS (but alas, i'll work with it.)
+// kept getting issues with doing utf-8 stuff in the terminal so I added this little thing.
+#ifdef _WIN32
+#include <windows.h>
+
+// Convert UTF-16 (Windows default) to UTF-8
+std::string UTF16toUTF8(const std::wstring& wstr) {
+    if (wstr.empty()) return std::string();
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+    std::string strTo(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+    return strTo;
+}
+#endif
+
 namespace fs = std::filesystem;
 
 class BBFReader {
@@ -94,8 +109,25 @@ void printHelp() {
               << "  bbfmux <input.bbf> --extract [--outdir=path] [--section=\"Name\"]\n";
 }
 
+#ifdef _WIN32
+int wmain(int argc, wchar_t* argv[]) {
+    // Set console output to UTF-8 so std::cout works with Korean/Japanese/etc.
+    SetConsoleOutputCP(CP_UTF8);
+    setvbuf(stdout, nullptr, _IOFBF, 1000); // Buffer fix for some terminals
+
+    std::vector<std::string> args;
+    for (int i = 0; i < argc; ++i) {
+        args.push_back(UTF16toUTF8(argv[i]));
+    }
+#else
 int main(int argc, char* argv[]) {
-    if (argc < 2) { printHelp(); return 1; }
+    std::vector<std::string> args;
+    for (int i = 0; i < argc; ++i) {
+        args.push_back(argv[i]);
+    }
+#endif
+    // Now use 'args' instead of 'argv' throughout your code
+    if (args.size() < 2) { printHelp(); return 1; }
 
     std::vector<std::string> inputs;
     std::string outputBbf;
@@ -109,8 +141,9 @@ int main(int argc, char* argv[]) {
     std::vector<MetaReq> metaReqs;
 
     // Parse all of the arguments
-    for (int i = 1; i < argc; ++i) {
-        std::string arg = argv[i];
+    for (size_t i = 1; i < args.size(); ++i) {
+        std::string arg = args[i]; // Use args[i], not argv[i]
+        
         if (arg == "--info") modeInfo = true;
         else if (arg == "--verify") modeVerify = true;
         else if (arg == "--extract") modeExtract = true;
@@ -134,7 +167,6 @@ int main(int argc, char* argv[]) {
             inputs.push_back(arg);
         }
     }
-
     // Perform actions
     if (modeInfo || modeVerify || modeExtract) {
         if (inputs.empty()) { std::cerr << "Error: No .bbf input specified.\n"; return 1; }
