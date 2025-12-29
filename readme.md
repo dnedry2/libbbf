@@ -31,7 +31,7 @@ Every asset in a BBF file starts on a 4KB boundary. This alignment is critical f
 BBF uses **[XXH3_64](https://github.com/Cyan4973/xxHash)** hashing to identify identical pages. If a book contains duplicate pages, the data is stored exactly once on disk while being referenced multiple times in the Page Table.
 
 ### Archival Integrity
-Traditional bit-rot is the enemy of the archivist. BBF stores a 64-bit hash for *every individual asset*. The `bbfmux --verify` command can pinpoint exactly which page in a 2GB file has been damaged, rather than simply failing to open the entire archive.
+BBF stores a 64-bit hash for *every individual asset*. The `bbfmux --verify` command can pinpoint exactly which page has been damaged, rather than simply failing to open the entire archive.
 
 ### Mixed-Codec Support
 Preserve covers in **Lossless PNG** while encoding internal story pages in **AVIF** to save 70% space. BBF explicitly flags the codec for every asset, allowing readers to initialize the correct decoder instantly without "guessing" the file type.
@@ -102,7 +102,7 @@ bbfmux input.bbf --info
 ### Compilation
 Linux
 ```bash
-g++ -std=c++17 bbfmux.cpp libbbf.cpp xxhash.c -o bbfmux
+g++ -std=c++17 bbfenc.cpp libbbf.cpp xxhash.c -o bbfmux
 ```
 
 Windows
