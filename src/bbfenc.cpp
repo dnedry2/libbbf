@@ -443,8 +443,15 @@ int main(int argc, char *argv[])
             sectionNameToIdx[s.name] = sectionCounter++;
         }
 
+        for (auto &m : metaReqs)
+        {
+            // Use trimQuotes to ensure metadata keys/values don't have stray " characters
+            builder.addMetadata(trimQuotes(m.k), trimQuotes(m.v));
+        }
+
         if (builder.finalize())
             std::cout << "Successfully created " << outputBbf << "\n";
+
     }
 
     return 0;
