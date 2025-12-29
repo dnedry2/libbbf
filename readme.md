@@ -101,7 +101,7 @@ bbfmux input.bbf --info
 
 ### Compilation
 ```bash
-g++ -std=c++17 bbfmux.cpp libbbf.cpp xxhash.c -o bbfmux
+g++ -std=c++17 bbfenc.cpp libbbf.cpp xxhash.c -o bbfmux
 ```
 
 ## License
