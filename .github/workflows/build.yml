@@ -1,11 +1,12 @@
-name: Build Binaries
+name: Release Binaries
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  workflow_dispatch:
+    tags:
+      - 'v*' # Trigger on vx.x.x
+
+permissions:
+  contents: write # Required to create a release and upload assets
 
 jobs:
   build:
@@ -15,11 +16,9 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact_name: bbfmux-linux
             binary_name: bbfmux
             compile_cmd: g++ -std=c++17 src/bbfenc.cpp src/libbbf.cpp src/xxhash.c -o bbfmux -pthread
           - os: windows-latest
-            artifact_name: bbfmux-windows
             binary_name: bbfmux.exe
             compile_cmd: g++ -std=c++17 src/bbfenc.cpp src/libbbf.cpp src/xxhash.c -o bbfmux.exe -municode
 
@@ -27,16 +26,35 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Compile (Linux)
-        if: runner.os == 'Linux'
+      - name: Compile
         run: ${{ matrix.compile_cmd }}
 
-      - name: Compile (Windows)
-        if: runner.os == 'Windows'
-        run: ${{ matrix.compile_cmd }}
-
-      - name: Upload Artifact
+      - name: Upload temporary artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.artifact_name }}
+          name: ${{ matrix.os }}-bin
           path: ${{ matrix.binary_name }}
+
+  create_release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: bin-temp
+          merge-multiple: true
+
+      - name: Create Release and Upload Assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            bin-temp/bbfmux
+            bin-temp/bbfmux.exe
+          generate_release_notes: true # Automatically summarizes commits since last release
+          draft: false
+          prerelease: false
