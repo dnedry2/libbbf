@@ -14,4 +14,8 @@ add_executable(bbfmux
 
 target_link_libraries(bbfmux PRIVATE Threads::Threads)
 
+if(WIN32)
+    target_compile_options(bbfmux PRIVATE -municode)
+endif()
+
 install(TARGETS bbfmux DESTINATION bin)
