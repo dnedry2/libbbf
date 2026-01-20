@@ -85,10 +85,7 @@ NOTE: `libbbf.h` includes a `flags` field, as well as extra padding for each ass
 </font>
 
 ### Graphical Comparison (BBF vs. CBZ)
-
-<img width="3321" height="2010" alt="graphcombined" src="https://github.com/user-attachments/assets/e99674ac-85c8-49d1-a8d6-7ee22803dde8" />
-
-
+<img width="4372" height="2888" alt="performance_grid" src="https://github.com/user-attachments/assets/34f38fc6-eb25-4b0d-bc8c-cbda00be3d8a" />
 
 ---
 
