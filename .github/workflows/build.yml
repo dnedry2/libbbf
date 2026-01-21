@@ -20,7 +20,7 @@ jobs:
             compile_cmd: g++ -std=c++17 src/bbfenc.cpp src/libbbf.cpp src/xxhash.c -o bbfmux -pthread
           - os: windows-latest
             binary_name: bbfmux.exe
-            compile_cmd: g++ -std=c++17 src/bbfenc.cpp src/libbbf.cpp src/xxhash.c -o bbfmux.exe -municode
+            compile_cmd: g++ -std=c++17 src/bbfenc.cpp src/libbbf.cpp src/xxhash.c -o bbfmux.exe -municode -static-libgcc -static-libstdc++ -static
 
     steps:
       - name: Checkout code
