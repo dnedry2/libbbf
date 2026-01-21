@@ -66,7 +66,7 @@ Every asset in a BBF file starts on a **4096-byte boundary**. This alignment is 
 8. **Metadata Table**: Key-Value pairs for archival data (Author, Scanlation team, etc.).
 9. **Footer (76 bytes)**: Table offsets and a final integrity hash.
 
-NOTE: `libbbf.h` includes a `flags` field, as well as extra padding for each asset entry. This is so that in the future `libbbf` can accomodate future technical advancements in both readers and image storage.
+NOTE: `libbbf.h` includes a `flags` field, as well as extra padding for each asset entry. This is so that in the future `libbbf` can accomodate future technical advancements in both readers and image storage. I.E. If images support DirectStorage in the future, then BBF will be able to use it.
 
 ### Feature Comparison: Digital Comic & Archival Formats
 
