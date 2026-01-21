@@ -72,9 +72,9 @@ NOTE: `libbbf.h` includes a `flags` field, as well as extra padding for each ass
 
 | Feature | **BBF** | CBZ (Zip) | CBR (Rar) | PDF | EPUB | Folder |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Random Page Access** | ✅ | ❌ | ❌ | ✅ | ❌ | ✅ |
+| **Random Page Access** | ✅ | ✅[8] | ✅[8] | ✅ | ❌ | ✅ |
 | **Native Data Deduplication** | ✅ | ❌ | ❌ | ⚠️ [1] | ❌ | ❌ |
-| **Per-Asset Integrity (XXH3)** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Per-Asset Integrity (XXH3)** | ✅ | ⚠️[9] | ⚠️[9] | ❌ | ❌ | ❌ |
 | **4KB Sector Alignment** | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 | **Native Sections/Chapters** | ✅ | ❌ | ❌ | ✅ | ✅ | ❌ |
 | **Arbitrary Metadata (UTF-8)** | ✅ | ⚠️ [2] | ❌ | ✅ | ✅ | ❌ |
@@ -90,9 +90,12 @@ NOTE: `libbbf.h` includes a `flags` field, as well as extra padding for each ass
 [2] - CBZ does not support metadata natively in the ZIP spec; it relies on unofficial sidecar files like <code>ComicInfo.xml</code>.<br/>
 [3] - While folders allow memory mapping, individual images within them are rarely sector-aligned for optimized DirectStorage throughput.<br/>
 [4] - ZIP/RAR require large, complex libraries (zlib/libarchive); BBF is a "Plain Old Data" (POD) format requiring only a few lines of C++ to parse.<br/>
-[5] - ZIP/RAR use CRC32, which is aging, collision-prone, and significantly slower to verify than XXH3 for large archival collections.<br/>
+[5] - ZIP/RAR use CRC32, which is aging, collision-prone, and significantly slower to verify than XXH3 for large archival collections. See [8].<br/>
 [6] - Because the index is at the end (Footer), web-based streaming requires a "Range Request" to the end of the file before reading pages.<br/>
 [7] - PDF supports "Linearization" (Fast Web View), allowing the header and first pages to be read before the rest of the file is downloaded.<br/>
+[8] - As Reddit properly corrected me, ZIP/RAR does have random access. <br/>
+[9] - While I think CRC32 is a legacy hash format, ZIP/RAR does have verification ability, though somewhat outdated. See [5].<br/>
+
 </font>
 
 ### Graphical Comparison (BBF vs. CBZ)
